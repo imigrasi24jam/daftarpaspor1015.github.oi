@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Paspor - Imigrasi Indonesia</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary-blue: #1e40af;
+            --primary-blue-dark: #1e3a8a;
+            --secondary-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --accent-gold-dark: #d97706;
+            --success-green: #10b981;
+            --warning-orange: #f97316;
+            --error-red: #ef4444;
+            --neutral-gray: #6b7280;
+            --light-gray: #f3f4f6;
+            --white: #ffffff;
+            --dark-text: #1f2937;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-heavy: rgba(0, 0, 0, 0.25);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Payment Container */
+        .payment-container {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+        /* Header */
+        .payment-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: var(--white);
+            padding: 24px;
+            text-align: center;
+        }
+        .payment-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .payment-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        /* Content */
+        .payment-content {
+            padding: 30px;
+        }
+        /* Timer */
+        .payment-timer {
+            background: linear-gradient(135deg, var(--warning-orange) 0%, var(--accent-gold) 100%);
+            color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .timer-text {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .timer-countdown {
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        /* Payment Info */
+        .payment-info {
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .info-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 14px;
+            color: var(--neutral-gray);
+            font-weight: 500;
+        }
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-text);
+            text-align: right;
+            max-width: 60%;
+        }
+        .total-row {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid var(--primary-blue);
+        }
+        .total-row .info-label {
+            color: var(--primary-blue);
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .total-row .info-value {
+            color: var(--primary-blue);
+            font-size: 20px;
+            font-weight: 700;
+        }
+        /* Account Details */
+        .account-details {
+            background: rgba(30, 64, 175, 0.05);
+            border: 1px solid rgba(30, 64, 175, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .account-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .account-row:last-child {
+            margin-bottom: 0;
+        }
+        .copy-btn {
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 8px;
+        }
+        .copy-btn:hover {
+            background: var(--primary-blue-dark);
+        }
+        /* Instructions */
+        .payment-instructions {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .instruction-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--success-green);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .instruction-list {
+            list-style: none;
+            padding: 0;
+        }
+        .instruction-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--dark-text);
+        }
+        .instruction-list li:last-child {
+            margin-bottom: 0;
+        }
+        .step-number {
+            background: var(--success-green);
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            min-height: 52px;
+        }
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--white);
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .payment-container {
+                width: 95%;
+            }
+            
+            .payment-content {
+                padding: 20px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .info-value {
+                max-width: 100%;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Payment Container -->
+    <div class="payment-container">
+        <!-- Header -->
+        <div class="payment-header">
+            <div class="payment-title">Informasi Pembayaran</div>
+            <div class="payment-subtitle">Silakan lakukan pembayaran sesuai informasi di bawah</div>
+        </div>
+        
+        <!-- Content -->
+        <div class="payment-content">
+            <!-- Payment Timer -->
+            <div class="payment-timer">
+                <div class="timer-text">Batas waktu pembayaran:</div>
+                <div class="timer-countdown" id="paymentTimer">02:00:00</div>
+            </div>
+            
+            <!-- Payment Info -->
+            <div class="payment-info">
+                <div class="info-title">Detail Pembayaran</div>
+                
+                <div class="info-row">
+                    <span class="info-label">No. Permohonan:</span>
+                    <span class="info-value" id="applicationNumber">-</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Catatn Pembayaran:</span>
+                    <span class="info-value" id="applicantName">-</span>
+                </div>
+                
+                <div class="total-row">
+                    <div class="info-row">
+                        <span class="info-label">Total Pembayaran:</span>
+                        <span class="info-value" id="totalAmount">Rp 1.004.400</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Details -->
+            <div class="account-details">
+                <div class="account-title">Informasi No pembayaran<div>
+                
+                <div class="account-row">
+                    <span class="info-label">Nama Penerima:</span>
+                    <span class="info-value" id="accountName">-</span>
+                </div>
+                
+                <div class="account-row">
+                    <span class="info-label">Kode Pembayaran:</span>
+                    <span class="info-value">
+                        <span id="accountNumber">-</span>
+                        <button class="copy-btn" onclick="copyToClipboard('accountNumber')">Salin</button>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Payment Instructions -->
+            <div class="payment-instructions">
+                <div class="instruction-title">Cara Pembayaran</div>
+                <ol class="instruction-list">
+                    <li>
+                        <div class="step-number">1</div>
+                        <div>Transfer ke kode yang tertera di atas</div>
+                    </li>
+                    <li>
+                        <div class="step-number">2</div>
+                        <div>Transfer sesuai nominal yang tertera</div>
+                    </li>
+                    <li>
+                        <div class="step-number">3</div>
+                        <div>Simpan bukti transfer</div>
+                    </li>
+                    <li>
+                        <div class="step-number">4</div>
+                        <div>Kembali ke dashboard untuk upload bukti</div>
+                    </li>
+                </ol>
+            </div>
+            
+            <!-- Action Button -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="goToUploadProof()">
+                    Upload Bukti Bayar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Konfigurasi rekening
+        const BANK_ACCOUNT = {
+            name: 'IMIGRASI INDONESIA',
+            number: '4041910118265849'
+        };
+        
+        // Variabel global
+        let paymentTimer = null;
+        let timeRemaining = 0;
+        let applicationId = null;
+        
+        // Inisialisasi halaman
+        function initializePage() {
+            // Cek parameter URL
+            const urlParams = new URLSearchParams(window.location.search);
+            applicationId = urlParams.get('id') || 'APP-' + Date.now();
+            
+            // Cek apakah ada timer yang tersimpan di localStorage
+            const savedTime = localStorage.getItem('paymentTimer_' + applicationId);
+            const savedTimestamp = localStorage.getItem('paymentTimerTimestamp_' + applicationId);
+            
+            if (savedTime && savedTimestamp) {
+                // Hitung waktu yang tersisa
+                const now = new Date().getTime();
+                const elapsed = Math.floor((now - parseInt(savedTimestamp)) / 1000);
+                timeRemaining = Math.max(0, parseInt(savedTime) - elapsed);
+                
+                if (timeRemaining <= 0) {
+                    handlePaymentTimeout();
+                    return;
+                }
+            } else {
+                // Set timer baru (2 jam = 7200 detik)
+                timeRemaining = 7200;
+                
+                // Simpan ke localStorage
+                localStorage.setItem('paymentTimer_' + applicationId, timeRemaining);
+                localStorage.setItem('paymentTimerTimestamp_' + applicationId, new Date().getTime());
+            }
+            
+            // Update tampilan informasi pembayaran
+            updatePaymentInfo();
+            
+            // Mulai timer
+            startPaymentTimer();
+        }
+        
+        // Update informasi pembayaran
+        function updatePaymentInfo() {
+            // Update nomor permohonan
+            document.getElementById('applicationNumber').textContent = applicationId;
+            
+            // Update nama pemohon (dari localStorage atau default)
+            const applicantName = localStorage.getItem('applicantName') || 'Pembayaran Paspor';
+            document.getElementById('applicantName').textContent = applicantName;
+            
+            // Update total pembayaran (dari localStorage atau default)
+            const totalAmount = localStorage.getItem('totalAmount') || '1004400';
+            document.getElementById('totalAmount').textContent = 'Rp ' + parseInt(totalAmount).toLocaleString('id-ID');
+            
+            // Update informasi rekening
+            document.getElementById('accountName').textContent = BANK_ACCOUNT.name;
+            document.getElementById('accountNumber').textContent = BANK_ACCOUNT.number;
+        }
+        
+        // Mulai timer pembayaran
+        function startPaymentTimer() {
+            // Update tampilan timer
+            updateTimerDisplay();
+            
+            // Set interval untuk update timer setiap detik
+            paymentTimer = setInterval(() => {
+                timeRemaining--;
+                
+                // Update localStorage
+                localStorage.setItem('paymentTimer_' + applicationId, timeRemaining);
+                
+                // Perbarui tampilan timer
+                updateTimerDisplay();
+                
+                // Cek apakah waktu habis
+                if (timeRemaining <= 0) {
+                    clearInterval(paymentTimer);
+                    handlePaymentTimeout();
+                }
+            }, 1000);
+        }
+        
+        // Update tampilan timer
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeRemaining / 3600);
+            const minutes = Math.floor((timeRemaining % 3600) / 60);
+            const seconds = timeRemaining % 60;
+            
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('paymentTimer').textContent = timeString;
+            
+            // Ubah warna timer jika kurang dari 30 menit
+            if (timeRemaining <= 1800) { // 30 menit
+                document.querySelector('.payment-timer').style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            }
+        }
+        
+        // Handle ketika waktu pembayaran habis
+        function handlePaymentTimeout() {
+            alert('Waktu pembayaran telah habis. Silakan buat permohonan baru.');
+            
+            // Hapus data dari localStorage
+            localStorage.removeItem('paymentTimer_' + applicationId);
+            localStorage.removeItem('paymentTimerTimestamp_' + applicationId);
+            
+            // Redirect ke halaman utama
+            window.location.href = 'index.html';
+        }
+        
+        // Salin teks ke clipboard
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Tampilkan feedback sementara
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Tersalin!';
+                btn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#1e40af';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Gagal menyalin. Silakan salin manual.');
+            });
+        }
+        
+        // Pindah ke halaman upload bukti
+        function goToUploadProof() {
+            window.location.href = `upload-bukti.html?id=${applicationId}`;
+        }
+        
+        // Event listener untuk halaman
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            
+            // Cegah pengguna meninggalkan halaman tanpa sengaja
+            window.addEventListener('beforeunload', function(e) {
+                if (paymentTimer) {
+                    e.preventDefault();
+                    e.returnValue = 'Pembayaran sedang berlangsung. Yakin ingin meninggalkan halaman?';
+                }
+            });
+        });
+        
+        // Fungsi untuk menyimpan data pembayaran
+        function savePaymentData() {
+            localStorage.setItem('applicantName', document.getElementById('applicantName').textContent);
+            localStorage.setItem('totalAmount', document.getElementById('totalAmount').textContent.replace(/[^0-9]/g, ''));
+        }
+    </script>
+</body>
+</html>
