@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Permohonan - imigrasi.go.id</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary-blue: #1e40af;
+            --primary-blue-dark: #1e3a8a;
+            --secondary-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --accent-gold-dark: #d97706;
+            --success-green: #10b981;
+            --warning-orange: #f97316;
+            --error-red: #ef4444;
+            --neutral-gray: #6b7280;
+            --light-gray: #f3f4f6;
+            --white: #ffffff;
+            --dark-text: #1f2937;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-heavy: rgba(0, 0, 0, 0.25);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: var(--white);
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Top Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            padding: 12px 16px;
+            box-shadow: 0 4px 20px var(--shadow-medium);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .nav-content {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+        .app-title {
+            color: var(--white);
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px var(--shadow-light);
+        }
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--white);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        /* Container and Layout */
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 16px;
+            position: relative;
+        }
+        .page-content {
+            padding-top: 80px;
+            padding-bottom: 20px;
+            min-height: calc(100vh - 160px);
+        }
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 
+                0 4px 6px var(--shadow-light),
+                0 1px 3px var(--shadow-light);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue));
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 8px 25px var(--shadow-medium),
+                0 4px 10px var(--shadow-light);
+        }
+        .card:hover::before {
+            opacity: 1;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-text);
+        }
+        .empty-description {
+            color: var(--neutral-gray);
+            margin-bottom: 24px;
+            max-width: 300px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(30, 64, 175, 0.4);
+        }
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        /* Status Overview Card */
+        .status-overview {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px var(--shadow-light);
+            border-left: 5px solid var(--primary-blue);
+        }
+        .overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .overview-info h2 {
+            font-size: 18px;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+        .overview-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .meta-item {
+            font-size: 14px;
+            color: var(--neutral-gray);
+        }
+        .meta-value {
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        .current-status {
+            text-align: right;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .status-pending {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--warning-orange);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+        .status-processing {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--secondary-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .status-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .status-description {
+            font-size: 12px;
+            color: var(--neutral-gray);
+        }
+        /* Progress Timeline */
+        .progress-section {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px var(--shadow-light);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--light-gray);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+            padding-left: 40px;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-marker {
+            position: absolute;
+            left: -47px;
+            top: 5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 2;
+        }
+        .timeline-marker.completed {
+            background: var(--success-green);
+            color: var(--white);
+        }
+        .timeline-marker.current {
+            background: var(--primary-blue);
+            color: var(--white);
+            animation: pulse 2s infinite;
+        }
+        .timeline-marker.pending {
+            background: var(--light-gray);
+            color: var(--neutral-gray);
+            border: 2px solid var(--white);
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(30, 64, 175, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(30, 64, 175, 0);
+            }
+        }
+        .timeline-content {
+            background: var(--light-gray);
+            padding: 16px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid transparent;
+        }
+        .timeline-content.completed {
+            border-left-color: var(--success-green);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .timeline-content.current {
+            border-left-color: var(--primary-blue);
+            background: rgba(30, 64, 175, 0.05);
+        }
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 8px;
+        }
+        .timeline-description {
+            font-size: 14px;
+            color: var(--neutral-gray);
+            margin-bottom: 12px;
+        }
+        .timeline-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--neutral-gray);
+        }
+        .timeline-date {
+            font-weight: 500;
+        }
+        .timeline-duration {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        /* Application Details */
+        .details-section {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px var(--shadow-light);
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .detail-item {
+            padding: 16px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+        }
+        .detail-label {
+            font-size: 12px;
+            color: var(--neutral-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        /* Action Buttons */
+        .actions-section {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            box-shadow: 0 4px 6px var(--shadow-light);
+        }
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            min-height: 50px;
+        }
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+        .btn-success {
+            background: var(--success-green);
+            color: var(--white);
+        }
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .btn-disabled {
+            background: var(--light-gray);
+            color: var(--neutral-gray);
+            cursor: not-allowed;
+        }
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        /* Notifications */
+        .notification {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification.warning {
+            background: rgba(249, 115, 22, 0.1);
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+        .notification.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .notification-icon {
+            font-size: 20px;
+            margin-top: 2px;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .notification-text {
+            font-size: 13px;
+            color: var(--neutral-gray);
+        }
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -4px 20px var(--shadow-light);
+            z-index: 1000;
+        }
+        .nav-tabs {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+        }
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: var(--neutral-gray);
+            transition: var(--transition);
+            border-radius: 8px;
+            min-width: 60px;
+            cursor: pointer;
+        }
+        .nav-tab:hover,
+        .nav-tab.active {
+            color: var(--primary-blue);
+            background: rgba(30, 64, 175, 0.1);
+            transform: translateY(-2px);
+        }
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 12px;
+            }
+            
+            .card {
+                padding: 16px;
+                margin-bottom: 12px;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (min-width: 481px) {
+            .bottom-nav {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+            
+            .page-content {
+                min-height: calc(100vh - 80px);
+            }
+        }
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+        }
+        /* Utility Classes */
+        .hidden { display: none; }
+        .text-center { text-align: center; }
+        .mb-20 { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <p>Memuat Status Permohonan...</p>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-content">
+            <div class="logo-container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_Kementrian_Imigrasi_dan_Pemasyarakatan_%282024%29.png/1200px-Logo_Kementrian_Imigrasi_dan_Pemasyarakatan_%282024%29.png" alt="Passport App Logo" class="logo">
+                <div class="app-title">IMIGRASI INDONESIA</div>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="logout()">Keluar</button>
+                <div class="user-avatar" id="userAvatar" onclick="goToProfile()">U</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="page-content">
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center">
+                <div class="loading"></div>
+                <p style="margin-top: 16px; color: var(--neutral-gray);">Memuat data permohonan...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden">
+                <div class="card">
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <h3 class="empty-title">Belum Ada Permohonan</h3>
+                        <p class="empty-description">Anda belum memiliki permohonan paspor. Silakan buat permohonan baru untuk melihat statusnya di sini.</p>
+                        <button class="btn btn-primary btn-block" onclick="goToApplication()">
+                            <span>📝</span> Buat Permohonan Baru
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="mainContent" class="hidden">
+                <!-- Notifications -->
+                <div id="notificationContainer"></div>
+
+                <!-- Status Overview -->
+                <div class="status-overview">
+                    <div class="overview-header">
+                        <div class="overview-info">
+                            <h2 id="applicationTitle">Permohonan Paspor Baru</h2>
+                            <div class="overview-meta">
+                                <div class="meta-item">
+                                    <span>No. Permohonan: </span>
+                                    <span class="meta-value" id="applicationNumber">PP1234567890</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span>Nama Pemohon: </span>
+                                    <span class="meta-value" id="applicantName">JOHN DOE</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span>Tanggal Pengajuan: </span>
+                                    <span class="meta-value" id="submissionDate">15 Desember 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="current-status">
+                            <div class="status-badge" id="currentStatusBadge">
+                                <span>⏳</span>
+                                Menunggu Pembayaran
+                            </div>
+                            <div class="status-description" id="statusDescription">
+                                Silakan lakukan pembayaran untuk melanjutkan proses
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Timeline -->
+                <div class="progress-section">
+                    <h3 class="section-title">
+                        <span>🔄</span>
+                        Progress Permohonan
+                    </h3>
+                    <div class="timeline" id="progressTimeline">
+                        <!-- Timeline items will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Application Details -->
+                <div class="details-section">
+                    <h3 class="section-title">
+                        <span>📄</span>
+                        Detail Permohonan
+                    </h3>
+                    <div class="details-grid" id="applicationDetails">
+                        <!-- Details will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="actions-section">
+                    <h3 class="section-title">
+                        <span>⚡</span>
+                        Tindakan yang Tersedia
+                    </h3>
+                    <div class="actions-grid" id="actionButtons">
+                        <!-- Action buttons will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav">
+        <div class="nav-tabs">
+            <div class="nav-tab" onclick="goToDashboard()">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Dashboard</div>
+            </div>
+            <div class="nav-tab" onclick="goToProfile()">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">Profil</div>
+            </div>
+            <div class="nav-tab active" onclick="goToStatus()">
+                <div class="nav-icon">📊</div>
+                <div class="nav-label">Status</div>
+            </div>
+            <div class="nav-tab" onclick="goToApplication()">
+                <div class="nav-icon">📋</div>
+                <div class="nav-label">Permohonan</div>
+            </div>
+            <div class="nav-tab" onclick="goToHistory()">
+                <div class="nav-icon">📚</div>
+                <div class="nav-label">Riwayat</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            collection,
+            query,
+            where,
+            orderBy,
+            limit,
+            getDocs,
+            onSnapshot
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnFU4YCwV96wAd9wJdhdBNXXpbfNDGrQk",
+            authDomain: "daftar-paspor.firebaseapp.com",
+            projectId: "daftar-paspor",
+            storageBucket: "daftar-paspor.firebasestorage.app",
+            messagingSenderId: "535787439185",
+            appId: "1:535787439185:web:6d80b72fa7e85f8c672470",
+            measurementId: "G-XQYZ43R0P1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Make functions globally available
+        window.auth = auth;
+        window.db = db;
+        window.signOut = signOut;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.collection = collection;
+        window.query = query;
+        window.where = where;
+        window.orderBy = orderBy;
+        window.limit = limit;
+        window.getDocs = getDocs;
+        window.onSnapshot = onSnapshot;
+    </script>
+
+    <script>
+        let currentUser = null;
+        let applicationId = null;
+        let applicationData = null;
+        let statusListener = null;
+
+        // Status configurations
+        const STATUS_CONFIG = {
+            'draft': {
+                label: 'Draft',
+                icon: '📝',
+                class: 'status-pending',
+                description: 'Permohonan masih dalam tahap penyusunan'
+            },
+            'submitted': {
+                label: 'Diajukan',
+                icon: '📤',
+                class: 'status-processing',
+                description: 'Permohonan telah diajukan dan menunggu pembayaran'
+            },
+            'payment-pending': {
+                label: 'Menunggu Pembayaran',
+                icon: '⏳',
+                class: 'status-pending',
+                description: 'Silakan lakukan pembayaran untuk melanjutkan proses'
+            },
+            'payment-verification': {
+                label: 'Verifikasi Pembayaran',
+                icon: '🔍',
+                class: 'status-processing',
+                description: 'Bukti pembayaran sedang diverifikasi'
+            },
+            'document-review': {
+                label: 'Peninjauan Dokumen',
+                icon: '📋',
+                class: 'status-processing',
+                description: 'Dokumen sedang ditinjau oleh petugas'
+            },
+            'interview-scheduled': {
+                label: 'Jadwal Wawancara',
+                icon: '📅',
+                class: 'status-processing',
+                description: 'Wawancara telah dijadwalkan'
+            },
+            'interview-completed': {
+                label: 'Wawancara Selesai',
+                icon: '✅',
+                class: 'status-processing',
+                description: 'Wawancara telah selesai dilakukan'
+            },
+            'production': {
+                label: 'Produksi Paspor',
+                icon: '🏭',
+                class: 'status-processing',
+                description: 'Paspor sedang dalam proses produksi'
+            },
+            'ready-pickup': {
+                label: 'Siap Diambil',
+                icon: '📦',
+                class: 'status-completed',
+                description: 'Paspor siap diambil di kantor imigrasi'
+            },
+            'completed': {
+                label: 'Selesai',
+                icon: '🎉',
+                class: 'status-completed',
+                description: 'Permohonan paspor telah selesai'
+            },
+            'rejected': {
+                label: 'Ditolak',
+                icon: '❌',
+                class: 'status-rejected',
+                description: 'Permohonan ditolak, silakan periksa keterangan'
+            }
+        };
+
+        // Timeline steps
+        const TIMELINE_STEPS = [
+            {
+                id: 'submitted',
+                title: 'Permohonan Diajukan',
+                description: 'Formulir permohonan telah disubmit'
+            },
+            {
+                id: 'payment-pending',
+                title: 'Pembayaran',
+                description: 'Lakukan pembayaran biaya paspor'
+            },
+            {
+                id: 'payment-verification',
+                title: 'Verifikasi Pembayaran',
+                description: 'Verifikasi bukti pembayaran'
+            },
+            {
+                id: 'document-review',
+                title: 'Peninjauan Dokumen',
+                description: 'Peninjauan kelengkapan dokumen'
+            },
+            {
+                id: 'interview-scheduled',
+                title: 'Jadwal Wawancara',
+                description: 'Penjadwalan wawancara dan foto'
+            },
+            {
+                id: 'interview-completed',
+                title: 'Wawancara Selesai',
+                description: 'Wawancara dan pengambilan foto selesai'
+            },
+            {
+                id: 'production',
+                title: 'Produksi Paspor',
+                description: 'Paspor sedang diproduksi'
+            },
+            {
+                id: 'ready-pickup',
+                title: 'Siap Diambil',
+                description: 'Paspor siap diambil'
+            },
+            {
+                id: 'completed',
+                title: 'Selesai',
+                description: 'Proses permohonan selesai'
+            }
+        ];
+
+        // Check authentication state
+        function checkAuthState() {
+            const unsubscribe = auth.onAuthStateChanged(async (user) => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                
+                if (user) {
+                    currentUser = user;
+                    await loadUserApplications();
+                    
+                    // Hide loading screen
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 300);
+                    }, 1000);
+                    
+                } else {
+                    // User not authenticated, redirect to login
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+
+        // Load user applications
+        async function loadUserApplications() {
+            if (!currentUser) return;
+            
+            try {
+                // Get user applications from Firestore
+                const applicationsQuery = query(
+                    collection(db, 'applications'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc'),
+                    limit(1)
+                );
+                
+                const applicationsSnapshot = await getDocs(applicationsQuery);
+                const applications = [];
+                
+                applicationsSnapshot.forEach((doc) => {
+                    applications.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Check if user has any applications
+                if (applications.length === 0) {
+                    showEmptyState();
+                } else {
+                    // Get the most recent application
+                    applicationData = applications[0];
+                    applicationId = applicationData.id;
+                    
+                    // Set up real-time listener for this application
+                    const docRef = doc(db, 'applications', applicationId);
+                    statusListener = onSnapshot(docRef, (doc) => {
+                        if (doc.exists()) {
+                            applicationData = { id: doc.id, ...doc.data() };
+                            updateStatusDisplay();
+                        }
+                    });
+                    
+                    updateStatusDisplay();
+                    showMainContent();
+                }
+                
+                // Hide loading state
+                document.getElementById('loadingState').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Error loading user applications:', error);
+                showEmptyState();
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+        }
+
+        // Show main content
+        function showMainContent() {
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+
+        // Update status display
+        function updateStatusDisplay() {
+            if (!applicationData) return;
+            
+            // Update overview
+            updateOverview();
+            
+            // Update timeline
+            updateTimeline();
+            
+            // Update details
+            updateDetails();
+            
+            // Update actions
+            updateActions();
+            
+            // Show notifications
+            showNotifications();
+        }
+
+        // Update overview section
+        function updateOverview() {
+            document.getElementById('applicationTitle').textContent = getServiceTypeText(applicationData.applicationType);
+            document.getElementById('applicationNumber').textContent = applicationData.applicationNumber || 'PP' + Date.now();
+            document.getElementById('applicantName').textContent = applicationData.fullName || 'JOHN DOE';
+            document.getElementById('submissionDate').textContent = formatDate(applicationData.createdAt);
+            
+            // Update current status
+            const currentStatus = applicationData.status || 'submitted';
+            const statusConfig = STATUS_CONFIG[currentStatus];
+            
+            if (statusConfig) {
+                const statusBadge = document.getElementById('currentStatusBadge');
+                statusBadge.innerHTML = `<span>${statusConfig.icon}</span>${statusConfig.label}`;
+                statusBadge.className = `status-badge ${statusConfig.class}`;
+                
+                document.getElementById('statusDescription').textContent = statusConfig.description;
+            }
+        }
+
+        // Update timeline
+        function updateTimeline() {
+            const timeline = document.getElementById('progressTimeline');
+            const currentStatus = applicationData.status || 'submitted';
+            const currentStepIndex = TIMELINE_STEPS.findIndex(step => step.id === currentStatus);
+            
+            timeline.innerHTML = '';
+            
+            TIMELINE_STEPS.forEach((step, index) => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+                
+                let markerClass = 'pending';
+                let contentClass = '';
+                
+                if (index < currentStepIndex) {
+                    markerClass = 'completed';
+                    contentClass = 'completed';
+                } else if (index === currentStepIndex) {
+                    markerClass = 'current';
+                    contentClass = 'current';
+                }
+                
+                const statusHistory = applicationData.statusHistory || [];
+                const stepHistory = statusHistory.find(h => h.status === step.id);
+                
+                timelineItem.innerHTML = `
+                    <div class="timeline-marker ${markerClass}">
+                        ${index < currentStepIndex ? '✓' : index + 1}
+                    </div>
+                    <div class="timeline-content ${contentClass}">
+                        <div class="timeline-title">${step.title}</div>
+                        <div class="timeline-description">${step.description}</div>
+                        <div class="timeline-meta">
+                            <span class="timeline-date">
+                                ${stepHistory ? formatDateTime(stepHistory.timestamp) : 'Belum dilakukan'}
+                            </span>
+                            ${stepHistory ? `<span class="timeline-duration">Selesai</span>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                timeline.appendChild(timelineItem);
+            });
+        }
+
+        // Update details section
+        function updateDetails() {
+            const detailsContainer = document.getElementById('applicationDetails');
+            
+            const details = [
+                { label: 'Jenis Layanan', value: getServiceTypeText(applicationData.applicationType) },
+                { label: 'NIK', value: applicationData.nik || '-' },
+                { label: 'Tempat Lahir', value: applicationData.birthPlace || '-' },
+                { label: 'Tanggal Lahir', value: formatDate(applicationData.birthDate) || '-' },
+                { label: 'Alamat', value: applicationData.address || '-' },
+                { label: 'No. Telepon', value: applicationData.phone || '-' },
+                { label: 'Email', value: applicationData.email || '-' },
+                { label: 'Metode Pembayaran', value: getPaymentMethodText(applicationData.paymentMethod) }
+            ];
+            
+            detailsContainer.innerHTML = '';
+            
+            details.forEach(detail => {
+                const detailItem = document.createElement('div');
+                detailItem.className = 'detail-item';
+                detailItem.innerHTML = `
+                    <div class="detail-label">${detail.label}</div>
+                    <div class="detail-value">${detail.value}</div>
+                `;
+                detailsContainer.appendChild(detailItem);
+            });
+        }
+
+        // Update actions section
+        function updateActions() {
+            const actionsContainer = document.getElementById('actionButtons');
+            const currentStatus = applicationData.status || 'submitted';
+            
+            actionsContainer.innerHTML = '';
+            
+            // Define available actions based on status
+            let actions = [];
+            
+            switch (currentStatus) {
+                case 'submitted':
+                case 'payment-pending':
+                    actions = [
+                        {
+                            text: 'Lakukan Pembayaran',
+                            icon: '💳',
+                            class: 'btn-primary',
+                            action: 'makePayment'
+                        },
+                        {
+                            text: 'Edit Permohonan',
+                            icon: '✏️',
+                            class: 'btn-secondary',
+                            action: 'editApplication'
+                        }
+                    ];
+                    break;
+                    
+                case 'payment-verification':
+                    actions = [
+                        {
+                            text: 'Upload Bukti Bayar',
+                            icon: '📤',
+                            class: 'btn-primary',
+                            action: 'uploadProof'
+                        }
+                    ];
+                    break;
+                    
+                case 'document-review':
+                case 'interview-scheduled':
+                    actions = [
+                        {
+                            text: 'Lihat Jadwal',
+                            icon: '📅',
+                            class: 'btn-primary',
+                            action: 'viewSchedule'
+                        }
+                    ];
+                    break;
+                    
+                case 'ready-pickup':
+                    actions = [
+                        {
+                            text: 'Konfirmasi Pengambilan',
+                            icon: '📦',
+                            class: 'btn-success',
+                            action: 'confirmPickup'
+                        }
+                    ];
+                    break;
+                    
+                case 'completed':
+                    actions = [
+                        {
+                            text: 'Download Sertifikat',
+                            icon: '📄',
+                            class: 'btn-success',
+                            action: 'downloadCertificate'
+                        }
+                    ];
+                    break;
+                    
+                case 'rejected':
+                    actions = [
+                        {
+                            text: 'Ajukan Ulang',
+                            icon: '🔄',
+                            class: 'btn-primary',
+                            action: 'resubmit'
+                        }
+                    ];
+                    break;
+            }
+            
+            // Always add common actions
+            actions.push(
+                {
+                    text: 'Cetak Status',
+                    icon: '🖨️',
+                    class: 'btn-secondary',
+                    action: 'printStatus'
+                },
+                {
+                    text: 'Hubungi CS',
+                    icon: '💬',
+                    class: 'btn-secondary',
+                    action: 'contactCS'
+                }
+            );
+            
+            actions.forEach(action => {
+                const button = document.createElement('button');
+                button.className = `action-btn ${action.class}`;
+                button.innerHTML = `<span>${action.icon}</span>${action.text}`;
+                button.onclick = () => handleAction(action.action);
+                actionsContainer.appendChild(button);
+            });
+        }
+
+        // Show notifications
+        function showNotifications() {
+            const container = document.getElementById('notificationContainer');
+            const currentStatus = applicationData.status || 'submitted';
+            
+            container.innerHTML = '';
+            
+            // Show status-specific notifications
+            let notifications = [];
+            
+            switch (currentStatus) {
+                case 'payment-pending':
+                    notifications.push({
+                        type: 'warning',
+                        icon: '⚠️',
+                        title: 'Pembayaran Diperlukan',
+                        text: 'Silakan lakukan pembayaran dalam 2 jam untuk melanjutkan proses permohonan.'
+                    });
+                    break;
+                    
+                case 'payment-verification':
+                    notifications.push({
+                        type: 'info',
+                        icon: 'ℹ️',
+                        title: 'Verifikasi Pembayaran',
+                        text: 'Bukti pembayaran Anda sedang diverifikasi. Proses ini memakan waktu 1-3 jam kerja.'
+                    });
+                    break;
+                    
+                case 'interview-scheduled':
+                    notifications.push({
+                        type: 'success',
+                        icon: '📅',
+                        title: 'Wawancara Dijadwalkan',
+                        text: 'Wawancara Anda telah dijadwalkan. Silakan datang sesuai waktu yang ditentukan.'
+                    });
+                    break;
+                    
+                case 'ready-pickup':
+                    notifications.push({
+                        type: 'success',
+                        icon: '🎉',
+                        title: 'Paspor Siap Diambil',
+                        text: 'Paspor Anda sudah siap! Silakan datang ke kantor imigrasi untuk mengambilnya.'
+                    });
+                    break;
+            }
+            
+            notifications.forEach(notif => {
+                const notificationDiv = document.createElement('div');
+                notificationDiv.className = `notification ${notif.type}`;
+                notificationDiv.innerHTML = `
+                    <div class="notification-icon">${notif.icon}</div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-text">${notif.text}</div>
+                    </div>
+                `;
+                container.appendChild(notificationDiv);
+            });
+        }
+
+        // Handle action buttons
+        function handleAction(action) {
+            switch (action) {
+                case 'makePayment':
+                    if (applicationId) {
+                        window.location.href = `payment.html?id=${applicationId}`;
+                    } else {
+                        window.location.href = 'payment.html';
+                    }
+                    break;
+                    
+                case 'uploadProof':
+                    if (applicationId) {
+                        window.location.href = `upload-proof.html?id=${applicationId}`;
+                    } else {
+                        alert('Fitur upload bukti pembayaran akan segera tersedia.');
+                    }
+                    break;
+                    
+                case 'editApplication':
+                    if (applicationId) {
+                        window.location.href = `permohonan.html?id=${applicationId}&edit=true`;
+                    } else {
+                        window.location.href = 'permohonan.html';
+                    }
+                    break;
+                    
+                case 'viewSchedule':
+                    alert('Jadwal wawancara akan dikirimkan melalui email dan SMS.');
+                    break;
+                    
+                case 'confirmPickup':
+                    if (confirm('Apakah Anda sudah mengambil paspor?')) {
+                        alert('Terima kasih! Status permohonan akan diupdate.');
+                    }
+                    break;
+                    
+                case 'downloadCertificate':
+                    alert('Sertifikat akan didownload.');
+                    break;
+                    
+                case 'resubmit':
+                    if (confirm('Apakah Anda ingin mengajukan permohonan baru?')) {
+                        window.location.href = 'permohonan.html';
+                    }
+                    break;
+                    
+                case 'printStatus':
+                    window.print();
+                    break;
+                    
+                case 'contactCS':
+                    alert('Hubungi Customer Service:\nTelepon: 14045\nEmail: info@imigrasi.go.id');
+                    break;
+                    
+                default:
+                    alert('Fitur ini akan segera tersedia.');
+            }
+        }
+
+        // Utility functions
+        function getServiceTypeText(type) {
+            const types = {
+                'paspor-baru': 'Paspor Baru',
+                'paspor-hilang': 'Paspor Hilang',
+                'paspor-rusak': 'Paspor Rusak',
+                'paspor-beda-data': 'Paspor Beda Data'
+            };
+            return types[type] || 'Paspor Baru';
+        }
+
+        function getPaymentMethodText(method) {
+            const methods = {
+                'bank-transfer': 'Transfer Bank',
+                'e-wallet': 'E-Wallet',
+                'virtual-account': 'Virtual Account',
+                'credit-card': 'Kartu Kredit'
+            };
+            return methods[method] || 'Transfer Bank';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Navigation functions
+        function goToDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function goToProfile() {
+            window.location.href = 'profil.html';
+        }
+
+        function goToStatus() {
+            // Already on status page
+        }
+
+        function goToApplication() {
+            window.location.href = 'dashboard.html';
+            // This would normally show a modal, but for simplicity we redirect
+        }
+
+        function goToHistory() {
+            window.location.href = 'riwayat.html';
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error signing out:', error);
+                alert('Terjadi kesalahan saat logout');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (statusListener) {
+                statusListener();
+            }
+        });
+
+        // Make functions globally available
+        window.goToDashboard = goToDashboard;
+        window.goToProfile = goToProfile;
+        window.goToStatus = goToStatus;
+        window.goToApplication = goToApplication;
+        window.goToHistory = goToHistory;
+        window.logout = logout;
+        window.handleAction = handleAction;
+    </script>
+</body>
+</html>
