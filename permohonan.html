@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pendaftaran Paspor - Imigrasi Indonesia</title>
+<style>
+/* Reset and Base Styles */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+:root {
+--primary-blue: #1e40af;
+--primary-blue-dark: #1e3a8a;
+--secondary-blue: #3b82f6;
+--accent-gold: #f59e0b;
+--accent-gold-dark: #d97706;
+--success-green: #10b981;
+--warning-orange: #f97316;
+--error-red: #ef4444;
+--neutral-gray: #6b7280;
+--light-gray: #f3f4f6;
+--white: #ffffff;
+--dark-text: #1f2937;
+--shadow-light: rgba(0, 0, 0, 0.1);
+--shadow-medium: rgba(0, 0, 0, 0.15);
+--shadow-heavy: rgba(0, 0, 0, 0.25);
+--border-radius: 12px;
+--border-radius-lg: 16px;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+color: var(--dark-text);
+line-height: 1.6;
+min-height: 100vh;
+padding-bottom: 80px;
+}
+/* Loading Screen */
+.loading-screen {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+color: var(--white);
+}
+.loading-spinner {
+width: 50px;
+height: 50px;
+border: 4px solid rgba(255,255,255,0.3);
+border-radius: 50%;
+border-top-color: var(--white);
+animation: spin 1s ease-in-out infinite;
+margin-bottom: 20px;
+}
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+/* Top Navigation */
+.top-nav {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+padding: 12px 16px;
+box-shadow: 0 4px 20px var(--shadow-medium);
+z-index: 1000;
+backdrop-filter: blur(10px);
+}
+.nav-content {
+max-width: 480px;
+margin: 0 auto;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+.nav-left {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.back-btn {
+background: rgba(255, 255, 255, 0.2);
+border: none;
+color: var(--white);
+padding: 8px;
+border-radius: 8px;
+cursor: pointer;
+transition: var(--transition);
+backdrop-filter: blur(10px);
+}
+.back-btn:hover {
+background: rgba(255, 255, 255, 0.3);
+transform: translateY(-1px);
+}
+.app-title {
+color: var(--white);
+font-size: 18px;
+font-weight: 600;
+text-shadow: 0 1px 2px var(--shadow-light);
+}
+/* Container and Layout */
+.container {
+max-width: 480px;
+margin: 0 auto;
+padding: 0 16px;
+position: relative;
+}
+.page-content {
+padding-top: 80px;
+padding-bottom: 20px;
+min-height: calc(100vh - 160px);
+}
+/* Cards */
+.card {
+background: var(--white);
+border-radius: var(--border-radius);
+padding: 24px;
+margin-bottom: 16px;
+box-shadow:
+0 4px 6px var(--shadow-light),
+0 1px 3px var(--shadow-light);
+border: 1px solid rgba(255, 255, 255, 0.8);
+transition: var(--transition);
+}
+.card-header {
+margin-bottom: 20px;
+padding-bottom: 16px;
+border-bottom: 1px solid var(--light-gray);
+}
+.card-title {
+font-size: 20px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 4px;
+}
+.card-subtitle {
+font-size: 14px;
+color: var(--neutral-gray);
+}
+/* Form Styles */
+.form-group {
+margin-bottom: 20px;
+}
+.form-row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 16px;
+}
+.form-label {
+display: block;
+font-size: 14px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 8px;
+}
+.form-label.required::after {
+content: ' *';
+color: var(--error-red);
+}
+.form-input,
+.form-select,
+.form-textarea {
+width: 100%;
+padding: 12px 16px;
+border: 2px solid var(--light-gray);
+border-radius: 8px;
+font-size: 14px;
+transition: var(--transition);
+background: var(--white);
+}
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+outline: none;
+border-color: var(--primary-blue);
+box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+.form-textarea {
+resize: vertical;
+min-height: 100px;
+}
+.form-error {
+color: var(--error-red);
+font-size: 12px;
+margin-top: 4px;
+}
+/* File Upload */
+.file-upload {
+border: 2px dashed var(--light-gray);
+border-radius: 8px;
+padding: 24px;
+text-align: center;
+transition: var(--transition);
+cursor: pointer;
+position: relative;
+overflow: hidden;
+}
+.file-upload:hover {
+border-color: var(--primary-blue);
+background: rgba(30, 64, 175, 0.05);
+}
+.file-upload.dragover {
+border-color: var(--primary-blue);
+background: rgba(30, 64, 175, 0.1);
+}
+.file-upload input[type="file"] {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+opacity: 0;
+cursor: pointer;
+}
+.upload-icon {
+font-size: 32px;
+color: var(--neutral-gray);
+margin-bottom: 12px;
+}
+.upload-text {
+font-size: 14px;
+color: var(--neutral-gray);
+margin-bottom: 8px;
+}
+.upload-hint {
+font-size: 12px;
+color: var(--neutral-gray);
+}
+.file-preview {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 12px;
+background: var(--light-gray);
+border-radius: 8px;
+margin-top: 12px;
+}
+.file-info {
+flex: 1;
+}
+.file-name {
+font-size: 14px;
+font-weight: 600;
+color: var(--dark-text);
+}
+.file-size {
+font-size: 12px;
+color: var(--neutral-gray);
+}
+.remove-file {
+background: var(--error-red);
+color: var(--white);
+border: none;
+padding: 4px 8px;
+border-radius: 4px;
+font-size: 12px;
+cursor: pointer;
+transition: var(--transition);
+}
+.remove-file:hover {
+background: #dc2626;
+}
+/* Schedule Selection */
+.schedule-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+gap: 12px;
+margin-top: 16px;
+}
+.schedule-item {
+padding: 16px 12px;
+border: 2px solid var(--light-gray);
+border-radius: 8px;
+text-align: center;
+cursor: pointer;
+transition: var(--transition);
+background: var(--white);
+}
+.schedule-item:hover {
+border-color: var(--primary-blue);
+transform: translateY(-2px);
+}
+.schedule-item.selected {
+border-color: var(--primary-blue);
+background: rgba(30, 64, 175, 0.1);
+}
+.schedule-item.disabled {
+opacity: 0.5;
+cursor: not-allowed;
+background: var(--light-gray);
+}
+.schedule-date {
+font-size: 14px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 4px;
+}
+.schedule-day {
+font-size: 12px;
+color: var(--neutral-gray);
+margin-bottom: 8px;
+}
+.schedule-slots {
+font-size: 11px;
+color: var(--success-green);
+}
+/* Location Selection */
+.location-grid {
+display: grid;
+grid-template-columns: 1fr;
+gap: 12px;
+margin-top: 16px;
+}
+.location-item {
+display: flex;
+align-items: flex-start;
+gap: 16px;
+padding: 16px;
+border: 2px solid var(--light-gray);
+border-radius: 8px;
+cursor: pointer;
+transition: var(--transition);
+background: var(--white);
+}
+.location-item:hover {
+border-color: var(--primary-blue);
+transform: translateX(4px);
+}
+.location-item.selected {
+border-color: var(--primary-blue);
+background: rgba(30, 64, 175, 0.05);
+}
+.location-icon {
+width: 48px;
+height: 48px;
+background: var(--primary-blue);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(--white);
+font-size: 20px;
+flex-shrink: 0;
+}
+.location-info {
+flex: 1;
+}
+.location-name {
+font-size: 16px;
+font-weight: 600;
+color: var(--dark-text);
+margin-bottom: 4px;
+}
+.location-address {
+font-size: 14px;
+color: var(--neutral-gray);
+margin-bottom: 8px;
+}
+.location-details {
+display: flex;
+gap: 16px;
+font-size: 12px;
+color: var(--neutral-gray);
+}
+/* Buttons */
+.btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 12px 24px;
+border: none;
+border-radius: 8px;
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+text-decoration: none;
+min-height: 48px;
+}
+.btn-primary {
+background: var(--primary-blue);
+color: var(--white);
+}
+.btn-primary:hover {
+background: var(--primary-blue-dark);
+transform: translateY(-2px);
+box-shadow: 0 4px 12px var(--shadow-medium);
+}
+.btn-secondary {
+background: var(--white);
+color: var(--primary-blue);
+border: 2px solid var(--primary-blue);
+}
+.btn-secondary:hover {
+background: var(--primary-blue);
+color: var(--white);
+}
+.btn-full {
+width: 100%;
+}
+.btn-group {
+display: flex;
+gap: 12px;
+margin-top: 24px;
+}
+/* Animations */
+.fade-in {
+animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+from {
+opacity: 0;
+transform: translateY(20px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+/* Responsive Design */
+@media (max-width: 480px) {
+.container {
+padding: 0 12px;
+}
+.card {
+padding: 16px;
+margin-bottom: 12px;
+}
+.form-row {
+grid-template-columns: 1fr;
+gap: 12px;
+}
+.btn-group {
+flex-direction: column;
+}
+}
+/* Utility Classes */
+.hidden { display: none; }
+.text-center { text-align: center; }
+.mb-0 { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+<div class="loading-spinner"></div>
+<p>Memuat Formulir...</p>
+</div>
+<!-- Top Navigation -->
+<nav class="top-nav">
+<div class="nav-content">
+<div class="nav-left">
+<button class="back-btn" onclick="goBack()">
+<span>←</span>
+</button>
+<div class="app-title">Pendaftaran Paspor</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<div class="container">
+<div class="page-content">
+<!-- Registration Form -->
+<div class="card fade-in">
+<div class="card-header">
+<h2 class="card-title">Formulir Pendaftaran Paspor</h2>
+<p class="card-subtitle">Lengkapi data diri dan dokumen persyaratan</p>
+</div>
+<form id="registrationForm">
+<!-- Personal Data Section -->
+<div class="card-title" style="margin: 24px 0 16px 0; font-size: 16px;">Data Pribadi</div>
+<div class="form-group">
+<label class="form-label required">Jenis Permohonan</label>
+<select class="form-select" id="applicationType" required onchange="updateApplicationFields()">
+<option value="">Pilih jenis permohonan</option>
+<option value="paspor-baru">Paspor Baru</option>
+<option value="perpanjang-paspor">Perpanjang Paspor</option>
+<option value="paspor-hilang">Paspor Hilang</option>
+<option value="paspor-rusak">Paspor Rusak</option>
+<option value="paspor-beda-data">Paspor Beda Data</option>
+</select>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label required">Nama Lengkap</label>
+<input type="text" class="form-input" id="fullName" required>
+</div>
+<div class="form-group">
+<label class="form-label required">NIK</label>
+<input type="text" class="form-input" id="nik" maxlength="16" required>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label required">Tempat Lahir</label>
+<input type="text" class="form-input" id="birthPlace" required>
+</div>
+<div class="form-group">
+<label class="form-label required">Tanggal Lahir</label>
+<input type="date" class="form-input" id="birthDate" required>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label required">Jenis Kelamin</label>
+<select class="form-select" id="gender" required>
+<option value="">Pilih jenis kelamin</option>
+<option value="L">Laki-laki</option>
+<option value="P">Perempuan</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label required">Status Perkawinan</label>
+<select class="form-select" id="maritalStatus" required>
+<option value="">Pilih status</option>
+<option value="belum-kawin">Belum Kawin</option>
+<option value="kawin">Kawin</option>
+<option value="cerai-hidup">Cerai Hidup</option>
+<option value="cerai-mati">Cerai Mati</option>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label required">Alamat Lengkap</label>
+<textarea class="form-textarea" id="address" required></textarea>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label required">Nomor Telepon</label>
+<input type="tel" class="form-input" id="phone" required>
+</div>
+<div class="form-group">
+<label class="form-label required">Email</label>
+<input type="email" class="form-input" id="email" required>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label required">Pekerjaan</label>
+<input type="text" class="form-input" id="occupation" required>
+</div>
+<div class="form-group">
+<label class="form-label required">Pendidikan Terakhir</label>
+<select class="form-select" id="education" required>
+<option value="">Pilih pendidikan</option>
+<option value="SD">SD</option>
+<option value="SMP">SMP</option>
+<option value="SMA">SMA</option>
+<option value="D3">D3</option>
+<option value="S1">S1</option>
+<option value="S2">S2</option>
+<option value="S3">S3</option>
+</select>
+</div>
+</div>
+
+<!-- Additional fields for specific passport types -->
+<div id="additionalFields" class="hidden">
+<div id="extendPassportFields" class="hidden">
+<div class="form-group">
+<label class="form-label required">Nomor Paspor Lama</label>
+<input type="text" class="form-input" id="extendPassportNumber" placeholder="Masukkan nomor paspor yang akan diperpanjang">
+</div>
+<div class="form-group">
+<label class="form-label required">Tanggal Berakhir Paspor</label>
+<input type="date" class="form-input" id="passportExpiryDate">
+</div>
+</div>
+<div id="lostPassportFields" class="hidden">
+<div class="form-group">
+<label class="form-label required">Nomor Paspor Lama</label>
+<input type="text" class="form-input" id="oldPassportNumber">
+</div>
+<div class="form-group">
+<label class="form-label required">Tanggal Hilang</label>
+<input type="date" class="form-input" id="lostDate">
+</div>
+<div class="form-group">
+<label class="form-label required">Tempat Hilang</label>
+<input type="text" class="form-input" id="lostPlace">
+</div>
+</div>
+<div id="damagedPassportFields" class="hidden">
+<div class="form-group">
+<label class="form-label required">Nomor Paspor Lama</label>
+<input type="text" class="form-input" id="damagedPassportNumber">
+</div>
+<div class="form-group">
+<label class="form-label required">Jenis Kerusakan</label>
+<textarea class="form-textarea" id="damageDescription"></textarea>
+</div>
+</div>
+<div id="dataChangeFields" class="hidden">
+<div class="form-group">
+<label class="form-label required">Nomor Paspor Lama</label>
+<input type="text" class="form-input" id="changePassportNumber">
+</div>
+<div class="form-group">
+<label class="form-label required">Data yang Diubah</label>
+<textarea class="form-textarea" id="dataChanges"></textarea>
+</div>
+</div>
+</div>
+
+<!-- Documents Section -->
+<div class="card-title" style="margin: 32px 0 16px 0; font-size: 16px;">Dokumen Persyaratan</div>
+<div id="documentRequirements">
+<!-- KTP -->
+<div class="form-group">
+<label class="form-label required">KTP (Kartu Tanda Penduduk)</label>
+<div class="file-upload" id="ktpUpload">
+<input type="file" id="ktpFile" accept="image/*,.pdf" onchange="handleFileUpload('ktpFile', 'ktpPreview')">
+<div class="upload-icon">📄</div>
+<div class="upload-text">Klik untuk upload KTP</div>
+<div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+</div>
+<div id="ktpPreview"></div>
+</div>
+<!-- Kartu Keluarga -->
+<div class="form-group">
+<label class="form-label required">Kartu Keluarga</label>
+<div class="file-upload" id="kkUpload">
+<input type="file" id="kkFile" accept="image/*,.pdf" onchange="handleFileUpload('kkFile', 'kkPreview')">
+<div class="upload-icon">👨‍👩‍👧‍👦</div>
+<div class="upload-text">Klik untuk upload Kartu Keluarga</div>
+<div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+</div>
+<div id="kkPreview"></div>
+</div>
+<!-- Akta Kelahiran -->
+<div class="form-group">
+<label class="form-label required">Akta Kelahiran</label>
+<div class="file-upload" id="birthCertUpload">
+<input type="file" id="birthCertFile" accept="image/*,.pdf" onchange="handleFileUpload('birthCertFile', 'birthCertPreview')">
+<div class="upload-icon">📜</div>
+<div class="upload-text">Klik untuk upload Akta Kelahiran</div>
+<div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+</div>
+<div id="birthCertPreview"></div>
+</div>
+<!-- Additional documents based on application type -->
+<div id="additionalDocuments"></div>
+</div>
+
+<!-- Photo Section -->
+<div class="card-title" style="margin: 32px 0 16px 0; font-size: 16px;">Foto Paspor</div>
+<div class="form-group">
+<label class="form-label required">Foto Formal (4x6 cm)</label>
+<div class="file-upload" id="photoUpload">
+<input type="file" id="photoFile" accept="image/*" onchange="handleFileUpload('photoFile', 'photoPreview')">
+<div class="upload-icon">📸</div>
+<div class="upload-text">Klik untuk upload foto</div>
+<div class="upload-hint">
+Persyaratan foto:<br>
+• Ukuran 4x6 cm<br>
+• Latar belakang putih<br>
+• Wajah menghadap kamera<br>
+• Format: JPG, PNG (Max: 1MB)
+</div>
+</div>
+<div id="photoPreview"></div>
+</div>
+
+<!-- Schedule Section -->
+<div class="card-title" style="margin: 32px 0 16px 0; font-size: 16px;">Jadwal Kedatangan</div>
+<div class="form-group">
+<label class="form-label required">Tanggal Kedatangan</label>
+<div class="schedule-grid" id="scheduleGrid">
+<!-- Schedule items will be populated by JavaScript -->
+</div>
+</div>
+<div class="form-group" id="timeSlotGroup" style="display: none;">
+<label class="form-label required">Jam Kedatangan</label>
+<select class="form-select" id="timeSlot">
+<option value="">Pilih jam kedatangan</option>
+<option value="08:00">08:00 - 09:00</option>
+<option value="09:00">09:00 - 10:00</option>
+<option value="10:00">10:00 - 11:00</option>
+<option value="11:00">11:00 - 12:00</option>
+<option value="13:00">13:00 - 14:00</option>
+<option value="14:00">14:00 - 15:00</option>
+<option value="15:00">15:00 - 16:00</option>
+</select>
+</div>
+
+<!-- Location Section -->
+<div class="card-title" style="margin: 32px 0 16px 0; font-size: 16px;">Lokasi Kantor Imigrasi</div>
+<div class="form-group">
+<label class="form-label required">Pilih Kantor Imigrasi</label>
+<div class="location-grid" id="locationGrid">
+<div class="location-item" onclick="selectLocation(this, 'jakarta-pusat')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Jakarta Pusat</div>
+<div class="location-address">Jl. HR. Rasuna Said Kav. 8-9, Jakarta Selatan</div>
+<div class="location-details">
+<span>📞 (021) 5201234</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+<div class="location-item" onclick="selectLocation(this, 'jakarta-barat')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Jakarta Barat</div>
+<div class="location-address">Jl. Daan Mogot Km. 11, Jakarta Barat</div>
+<div class="location-details">
+<span>📞 (021) 5405678</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+<div class="location-item" onclick="selectLocation(this, 'jakarta-timur')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Jakarta Timur</div>
+<div class="location-address">Jl. Raya Bekasi Km. 18, Jakarta Timur</div>
+<div class="location-details">
+<span>📞 (021) 8009876</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+<div class="location-item" onclick="selectLocation(this, 'tangerang')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">(ULP) Pasar pagi mangga dua</div>
+<div class="location-address">Jl. Mangga dua RayaLt.5Ancol</div>
+<div class="location-details">
+<span>📞 (021) 7560123</span>
+<span>🕒 09:00 - 14:00</span>
+</div>
+</div>
+</div>
+<div class="location-item" onclick="selectLocation(this, 'bekasi')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Bekasi</div>
+<div class="location-address">Jl. Ahmad Yani No. 1, Bekasi</div>
+<div class="location-details">
+<span>📞 (021) 8804567</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+<!-- Lokasi baru yang ditambahkan -->
+<div class="location-item" onclick="selectLocation(this, 'bandung')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Bandung</div>
+<div class="location-address">Jl. Surapati No. 10, Bandung</div>
+<div class="location-details">
+<span>📞 (022) 4234056</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+<div class="location-item" onclick="selectLocation(this, 'batam')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Batam</div>
+<div class="location-address">Jl. Engku Putri, Batam Centre, Batam</div>
+<div class="location-details">
+<span>📞 (0778) 461080</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+<div class="location-item" onclick="selectLocation(this, 'medan')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Medan</div>
+<div class="location-address">Jl. Balai Kota No. 1, Medan</div>
+<div class="location-details">
+<span>📞 (061) 4515252</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+<div class="location-item" onclick="selectLocation(this, 'mataram')">
+<div class="location-icon">🏢</div>
+<div class="location-info">
+<div class="location-name">Kantor Imigrasi Mataram</div>
+<div class="location-address">Jl. Langko No. 76, Mataram</div>
+<div class="location-details">
+<span>📞 (0370) 637123</span>
+<span>🕒 08:00 - 16:00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Submit Button -->
+<div class="btn-group">
+<button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+<button type="button" class="btn btn-primary" onclick="submitForm()">Lanjut ke Pembayaran</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+let selectedLocation = null;
+let selectedSchedule = null;
+let uploadedFiles = {};
+
+// Initialize page
+function initializePage() {
+    // Hide loading screen
+    setTimeout(() => {
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 300);
+    }, 1000);
+    
+    // Generate schedule options
+    generateScheduleOptions();
+}
+
+// Generate schedule options
+function generateScheduleOptions() {
+    const scheduleGrid = document.getElementById('scheduleGrid');
+    const today = new Date();
+    
+    // Generate next 14 days (excluding weekends)
+    for (let i = 1; i <= 21; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        
+        // Skip weekends
+        if (date.getDay() === 0 || date.getDay() === 6) continue;
+        
+        const dateStr = date.toISOString().split('T')[0];
+        const dayName = date.toLocaleDateString('id-ID', { weekday: 'long' });
+        const dateDisplay = date.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short'
+        });
+        const availableSlots = Math.floor(Math.random() * 5) + 3; // Random 3-7 slots
+        
+        const scheduleItem = document.createElement('div');
+        scheduleItem.className = 'schedule-item';
+        scheduleItem.onclick = () => selectSchedule(scheduleItem, dateStr);
+        scheduleItem.innerHTML = `
+            <div class="schedule-date">${dateDisplay}</div>
+            <div class="schedule-day">${dayName}</div>
+            <div class="schedule-slots">${availableSlots} slot tersedia</div>
+        `;
+        scheduleGrid.appendChild(scheduleItem);
+    }
+}
+
+// Select schedule
+function selectSchedule(element, date) {
+    // Remove previous selection
+    document.querySelectorAll('.schedule-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Select current item
+    element.classList.add('selected');
+    selectedSchedule = date;
+    
+    // Show time slot selection
+    document.getElementById('timeSlotGroup').style.display = 'block';
+}
+
+// Update application fields based on selected type
+function updateApplicationFields() {
+    const appType = document.getElementById('applicationType').value;
+    const additionalFields = document.getElementById('additionalFields');
+    const extendFields = document.getElementById('extendPassportFields');
+    const lostFields = document.getElementById('lostPassportFields');
+    const damagedFields = document.getElementById('damagedPassportFields');
+    const changeFields = document.getElementById('dataChangeFields');
+    
+    // Hide all additional fields first
+    additionalFields.classList.add('hidden');
+    extendFields.classList.add('hidden');
+    lostFields.classList.add('hidden');
+    damagedFields.classList.add('hidden');
+    changeFields.classList.add('hidden');
+    
+    // Show relevant fields based on type
+    switch(appType) {
+        case 'perpanjang-paspor':
+            extendFields.classList.remove('hidden');
+            additionalFields.classList.remove('hidden');
+            break;
+        case 'paspor-hilang':
+            lostFields.classList.remove('hidden');
+            additionalFields.classList.remove('hidden');
+            break;
+        case 'paspor-rusak':
+            damagedFields.classList.remove('hidden');
+            additionalFields.classList.remove('hidden');
+            break;
+        case 'paspor-beda-data':
+            changeFields.classList.remove('hidden');
+            additionalFields.classList.remove('hidden');
+            break;
+    }
+    
+    // Update additional documents
+    updateAdditionalDocuments(appType);
+}
+
+// Update additional documents based on application type
+function updateAdditionalDocuments(type) {
+    const container = document.getElementById('additionalDocuments');
+    container.innerHTML = '';
+    
+    if (type === 'perpanjang-paspor') {
+        container.innerHTML = `
+            <div class="form-group">
+                <label class="form-label required">Paspor Lama</label>
+                <div class="file-upload" id="oldPassportUpload">
+                    <input type="file" id="oldPassportFile" accept="image/*,.pdf" onchange="handleFileUpload('oldPassportFile', 'oldPassportPreview')">
+                    <div class="upload-icon">📘</div>
+                    <div class="upload-text">Klik untuk upload paspor lama</div>
+                    <div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+                </div>
+                <div id="oldPassportPreview"></div>
+            </div>
+        `;
+    } else if (type === 'paspor-hilang') {
+        container.innerHTML = `
+            <div class="form-group">
+                <label class="form-label required">Surat Keterangan Hilang dari Polisi</label>
+                <div class="file-upload" id="policeReportUpload">
+                    <input type="file" id="policeReportFile" accept="image/*,.pdf" onchange="handleFileUpload('policeReportFile', 'policeReportPreview')">
+                    <div class="upload-icon">🚔</div>
+                    <div class="upload-text">Klik untuk upload surat keterangan hilang</div>
+                    <div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+                </div>
+                <div id="policeReportPreview"></div>
+            </div>
+        `;
+    } else if (type === 'paspor-rusak') {
+        container.innerHTML = `
+            <div class="form-group">
+                <label class="form-label required">Paspor Lama (Rusak)</label>
+                <div class="file-upload" id="damagedPassportUpload">
+                    <input type="file" id="damagedPassportFile" accept="image/*,.pdf" onchange="handleFileUpload('damagedPassportFile', 'damagedPassportPreview')">
+                    <div class="upload-icon">📘</div>
+                    <div class="upload-text">Klik untuk upload paspor lama</div>
+                    <div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+                </div>
+                <div id="damagedPassportPreview"></div>
+            </div>
+        `;
+    } else if (type === 'paspor-beda-data') {
+        container.innerHTML = `
+            <div class="form-group">
+                <label class="form-label required">Paspor Lama</label>
+                <div class="file-upload" id="oldPassportChangeUpload">
+                    <input type="file" id="oldPassportChangeFile" accept="image/*,.pdf" onchange="handleFileUpload('oldPassportChangeFile', 'oldPassportChangePreview')">
+                    <div class="upload-icon">📘</div>
+                    <div class="upload-text">Klik untuk upload paspor lama</div>
+                    <div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+                </div>
+                <div id="oldPassportChangePreview"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label required">Dokumen Pendukung Perubahan Data</label>
+                <div class="file-upload" id="supportingDocUpload">
+                    <input type="file" id="supportingDocFile" accept="image/*,.pdf" onchange="handleFileUpload('supportingDocFile', 'supportingDocPreview')">
+                    <div class="upload-icon">📋</div>
+                    <div class="upload-text">Klik untuk upload dokumen pendukung</div>
+                    <div class="upload-hint">Format: JPG, PNG, PDF (Max: 2MB)</div>
+                </div>
+                <div id="supportingDocPreview"></div>
+            </div>
+        `;
+    }
+}
+
+// Select location
+function selectLocation(element, locationId) {
+    // Remove previous selection
+    document.querySelectorAll('.location-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Select current item
+    element.classList.add('selected');
+    selectedLocation = locationId;
+}
+
+// File upload handling - FIXED VERSION
+function handleFileUpload(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const file = input.files[0];
+    
+    if (!file) return;
+    
+    // Validate file size (2MB limit for documents, 1MB for photos)
+    const maxSize = inputId === 'photoFile' ? 1 * 1024 * 1024 : 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+        const maxSizeMB = inputId === 'photoFile' ? 1 : 2;
+        alert(`Ukuran file terlalu besar. Maksimal ${maxSizeMB}MB.`);
+        input.value = '';
+        return;
+    }
+    
+    // Store file reference
+    uploadedFiles[inputId] = file;
+    
+    // Create preview
+    const preview = document.getElementById(previewId);
+    preview.innerHTML = `
+        <div class="file-preview">
+            <div class="file-info">
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
+            </div>
+            <button type="button" class="remove-file" onclick="removeFile('${inputId}', '${previewId}')">Hapus</button>
+        </div>
+    `;
+}
+
+function removeFile(inputId, previewId) {
+    document.getElementById(inputId).value = '';
+    document.getElementById(previewId).innerHTML = '';
+    delete uploadedFiles[inputId];
+}
+
+// Form validation
+function validateForm() {
+    // Validate personal data
+    const requiredFields = [
+        'applicationType', 'fullName', 'nik', 'birthPlace', 'birthDate',
+        'gender', 'maritalStatus', 'address', 'phone', 'email',
+        'occupation', 'education'
+    ];
+    
+    for (const fieldId of requiredFields) {
+        const field = document.getElementById(fieldId);
+        if (!field.value.trim()) {
+            alert('Mohon lengkapi semua data yang diperlukan.');
+            field.focus();
+            return false;
+        }
+    }
+    
+    // Validate additional fields based on application type
+    const appType = document.getElementById('applicationType').value;
+    
+    if (appType === 'perpanjang-paspor') {
+        const additionalFields = ['extendPassportNumber', 'passportExpiryDate'];
+        for (const fieldId of additionalFields) {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                alert('Mohon lengkapi data perpanjangan paspor.');
+                field.focus();
+                return false;
+            }
+        }
+    } else if (appType === 'paspor-hilang') {
+        const additionalFields = ['oldPassportNumber', 'lostDate', 'lostPlace'];
+        for (const fieldId of additionalFields) {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                alert('Mohon lengkapi data paspor hilang.');
+                field.focus();
+                return false;
+            }
+        }
+    }
+    
+    // Validate documents
+    const requiredDocs = ['ktpFile', 'kkFile', 'birthCertFile', 'photoFile'];
+    for (const docId of requiredDocs) {
+        if (!uploadedFiles[docId]) {
+            alert('Mohon upload semua dokumen yang diperlukan.');
+            return false;
+        }
+    }
+    
+    // Check additional documents based on application type
+    if (appType === 'perpanjang-paspor' && !uploadedFiles['oldPassportFile']) {
+        alert('Mohon upload paspor lama.');
+        return false;
+    } else if (appType === 'paspor-hilang' && !uploadedFiles['policeReportFile']) {
+        alert('Mohon upload surat keterangan hilang dari polisi.');
+        return false;
+    }
+    
+    // Validate schedule
+    if (!selectedSchedule) {
+        alert('Mohon pilih tanggal kedatangan.');
+        return false;
+    }
+    
+    const timeSlot = document.getElementById('timeSlot').value;
+    if (!timeSlot) {
+        alert('Mohon pilih jam kedatangan.');
+        return false;
+    }
+    
+    // Validate location
+    if (!selectedLocation) {
+        alert('Mohon pilih lokasi kantor imigrasi.');
+        return false;
+    }
+    
+    return true;
+}
+
+// Submit form
+function submitForm() {
+    if (validateForm()) {
+        // Redirect to payment page
+        window.location.href = 'pembayaran.html';
+    }
+}
+
+// Reset form
+function resetForm() {
+    if (confirm('Apakah Anda yakin ingin menghapus semua data yang telah diisi?')) {
+        document.getElementById('registrationForm').reset();
+        
+        // Clear file uploads
+        uploadedFiles = {};
+        document.querySelectorAll('[id$="Preview"]').forEach(preview => {
+            preview.innerHTML = '';
+        });
+        
+        // Clear location selection
+        selectedLocation = null;
+        document.querySelectorAll('.location-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // Clear schedule selection
+        selectedSchedule = null;
+        document.querySelectorAll('.schedule-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        document.getElementById('timeSlotGroup').style.display = 'none';
+        document.getElementById('timeSlot').value = '';
+        
+        // Hide additional fields
+        document.getElementById('additionalFields').classList.add('hidden');
+        document.getElementById('additionalDocuments').innerHTML = '';
+    }
+}
+
+// Navigation
+function goBack() {
+    if (confirm('Apakah Anda yakin ingin kembali? Data yang telah diisi akan hilang.')) {
+        window.history.back();
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    initializePage();
+});
+
+// Make functions globally available
+window.goBack = goBack;
+window.updateApplicationFields = updateApplicationFields;
+window.selectLocation = selectLocation;
+window.selectSchedule = selectSchedule;
+window.handleFileUpload = handleFileUpload;
+window.removeFile = removeFile;
+window.submitForm = submitForm;
+window.resetForm = resetForm;
+</script>
+</body>
+</html>
